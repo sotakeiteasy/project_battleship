@@ -1,8 +1,10 @@
 import Ship from './ship'
 export default class Gameboard {
     board: (Ship | number)[][]
+    hitMap: boolean[][]
     constructor(){
         this.board = Array(10).fill(0).map(() => Array(10).fill(0))
+        this.hitMap = Array(10).fill(false).map(() => Array(10).fill(false))
     }
 
     placeShip(ship: Ship, coordinateX: number, coordinateY: number, isVertical = true) {
@@ -29,10 +31,30 @@ export default class Gameboard {
         return this.board[coordinateX][coordinateY] = ship
     }
 
-    // - placeShip()
-    // - receiveAttack()
-    // - allShipsSunk()
+    receiveAttack(coordinateX: number, coordinateY: number) {
+        const boardCell = this.board[coordinateX][coordinateY];
 
-    // Gameboards should keep track of missed attacks so they can display them properly.
+        if (this.hitMap[coordinateX][coordinateY] === true) {
+            return false
+        } else if (boardCell === 0) {
+            this.hitMap[coordinateX][coordinateY] = true;
+            return false
+        } else if (typeof(boardCell) === "object") {
+            this.hitMap[coordinateX][coordinateY] = true;
+            boardCell.hit();
+            return true
+        } 
+    }
+
+    allShipsSunk() {
+        for(let i = 0; i < this.board.length; i++) {
+            for(let j = 0; j < this.board.length; j++) {
+                if(typeof(this.board[i][j]) === 'object' && this.hitMap[i][j] === false)  {
+                    return false
+                }
+            }
+        }
+        return true
+    }
 }
 

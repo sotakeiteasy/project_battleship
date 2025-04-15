@@ -44,3 +44,36 @@ test("Placeship works correctly", () => {
     expect(board.board[6][6]).toBe(anotherShip);
     expect(board.board[7][6]).toBe(anotherShip);
 })
+
+test('Receive attack function works correctly', () => {
+    const board = new Gameboard
+    const ship = new Ship(2);
+    board.placeShip(ship, 2, 3)
+
+    expect(board.receiveAttack(2, 3)).toBe(true)
+    expect(board.receiveAttack(2, 3)).toBe(false)
+
+    expect(board.receiveAttack(4, 5)).toBe(false)
+})
+
+test('AllShipSunk function works correctly', () => {
+    const board = new Gameboard
+
+    // all sunk
+    const ship = new Ship(2);
+    board.placeShip(ship, 2, 3)
+
+    expect(board.receiveAttack(2, 3)).toBe(true)  
+    expect(board.receiveAttack(2, 4)).toBe(true)
+
+    expect(board.allShipsSunk()).toBe(true)
+
+    // not all sunk
+    const anotherShip = new Ship(3);
+    board.placeShip(anotherShip, 4, 6)
+
+    expect(board.receiveAttack(4, 6)).toBe(true)  
+    expect(board.receiveAttack(4, 7)).toBe(true)
+
+    expect(board.allShipsSunk()).toBe(false)
+})
