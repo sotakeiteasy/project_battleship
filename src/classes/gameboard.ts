@@ -2,9 +2,14 @@ import Ship from './ship'
 export default class Gameboard {
     board: (Ship | number)[][]
     hitMap: boolean[][]
+    ships: Ship[]
+    shipCoord: number[][][]
+
     constructor(){
         this.board = Array(10).fill(0).map(() => Array(10).fill(0))
         this.hitMap = Array(10).fill(false).map(() => Array(10).fill(false))
+        this.ships = []
+        this.shipCoord = []
     }
 
     placeShip(ship: Ship, coordinateX: number, coordinateY: number, isVertical = true) {
@@ -22,11 +27,15 @@ export default class Gameboard {
             return false;
         }
 
+        let coords = []
         for(let i = 0; i < ship.size; i++) {
             const x = isVertical ? coordinateX : coordinateX+i;
             const y = isVertical ? coordinateY + i : coordinateY;
             this.board[x][y] = ship
+            coords.push([x, y])
         }   
+        this.ships.push(ship)
+        this.shipCoord.push(coords)
 
         return this.board[coordinateX][coordinateY] = ship
     }
@@ -55,6 +64,10 @@ export default class Gameboard {
             }
         }
         return true
+    }
+
+    getShipCoord() {
+        return this.shipCoord.flat()
     }
 }
 
