@@ -32,6 +32,19 @@ test("Placeship works correctly", () => {
     expect(board.board[7][6]).toBe(anotherShip);
 })
 
+    test('Ship dont placed on top of each other at the intersection', () => {
+        const board = new Gameboard
+        const ship = new Ship(5);
+        const anotherShip = new Ship(4);
+
+        board.placeShip(ship, 1, 5, false)
+        board.placeShip(anotherShip, 3, 3)
+
+        expect(board.board[5][2]).toBe(0)
+        expect(board.getShipCoord()).toEqual([[1, 5],[2, 5],[3, 5],[4, 5],[5, 5]])
+
+    })
+
 test('Receive attack function works correctly', () => {
     const board = new Gameboard
     const ship = new Ship(2);

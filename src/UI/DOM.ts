@@ -25,12 +25,12 @@ export function Round(playerOne: Player, playerTwo: Player, playerOneShips: any,
 
     function placeShips() { 
         
-        const CarrierCoord = [1, 8];
-        // playerOne.board.placeShip(playerOneShips.carrier, CarrierCoord[0], CarrierCoord[1], false)
-        // playerOne.board.placeShip(playerOneShips.battleship, 3, 3)
+        const CarrierCoord = [1, 5];
+        playerOne.board.placeShip(playerOneShips.carrier, CarrierCoord[0], CarrierCoord[1], false)
+        playerOne.board.placeShip(playerOneShips.battleship, 3, 3)
         // playerOne.board.placeShip(playerOneShips.cruiser, 5, 0, false)
-        playerOne.board.placeShip(playerOneShips.submarine, 7, 4)
-        playerOne.board.placeShip(playerOneShips.destroyer, 9, 2)
+        // playerOne.board.placeShip(playerOneShips.submarine, 7, 4)
+        // playerOne.board.placeShip(playerOneShips.destroyer, 9, 2)
         
         // playerTwo.board.placeShip(playerTwoShips.carrier, 1, 3)
         // playerTwo.board.placeShip(playerTwoShips.battleship, 3, 3)

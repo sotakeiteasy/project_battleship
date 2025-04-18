@@ -23,9 +23,13 @@ export default class Gameboard {
             return false
         }
 
-        if(this.board[coordinateX][coordinateY] !== 0) {
-            return false;
-        }
+        for(let i = 0; i < ship.size; i++) {
+            const x = isVertical ? coordinateX : coordinateX+i;
+            const y = isVertical ? coordinateY + i : coordinateY;
+            if (this.board[x][y] !== 0) {
+                return false
+            } 
+        }   
 
         let coords = []
         for(let i = 0; i < ship.size; i++) {
@@ -36,6 +40,7 @@ export default class Gameboard {
         }   
         this.ships.push(ship)
         this.shipCoord.push(coords)
+        console.log(this.shipCoord)
 
         return this.board[coordinateX][coordinateY] = ship
     }
