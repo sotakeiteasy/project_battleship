@@ -26,9 +26,19 @@ export default class Gameboard {
         for(let i = 0; i < ship.size; i++) {
             const x = isVertical ? coordinateX : coordinateX+i;
             const y = isVertical ? coordinateY + i : coordinateY;
-            if (this.board[x][y] !== 0) {
-                return false
-            } 
+
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+
+                    if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                        if (typeof this.board[nx][ny] === 'object') {
+                            return false
+                        }
+                    }
+                }
+            }
         }   
 
         let coords = []
@@ -38,9 +48,28 @@ export default class Gameboard {
             this.board[x][y] = ship
             coords.push([x, y])
         }   
+
+        
+        for(let i = 0; i < ship.size; i++) {
+            const x = isVertical ? coordinateX : coordinateX+i;
+            const y = isVertical ? coordinateY + i : coordinateY;
+
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+
+                    if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                        if (this.board[nx][ny] === 0) {
+                            this.board[nx][ny] = 1
+                        }
+                    }
+                }
+            }
+        }  
+
         this.ships.push(ship)
         this.shipCoord.push(coords)
-        console.log(this.shipCoord)
 
         return this.board[coordinateX][coordinateY] = ship
     }

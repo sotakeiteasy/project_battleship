@@ -27,7 +27,7 @@ export function Round(playerOne: Player, playerTwo: Player, playerOneShips: any,
         
         const CarrierCoord = [1, 5];
         playerOne.board.placeShip(playerOneShips.carrier, CarrierCoord[0], CarrierCoord[1], false)
-        playerOne.board.placeShip(playerOneShips.battleship, 3, 3)
+        playerOne.board.placeShip(playerOneShips.battleship, 7, 4)
         // playerOne.board.placeShip(playerOneShips.cruiser, 5, 0, false)
         // playerOne.board.placeShip(playerOneShips.submarine, 7, 4)
         // playerOne.board.placeShip(playerOneShips.destroyer, 9, 2)

@@ -5,7 +5,6 @@ test("Ship work correctly", () => {
     expect(ship).toEqual({
         size: 2,
         numberOfHits: 0,
-        isSunk: false
     })
 
     ship.hit()

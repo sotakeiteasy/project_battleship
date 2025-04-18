@@ -45,6 +45,22 @@ test("Placeship works correctly", () => {
 
     })
 
+    
+    test('Ship dont placed near each other', () => {
+        const board = new Gameboard
+        const ship = new Ship(5);
+        const anotherShip = new Ship(4);
+
+        board.placeShip(ship, 1, 0)
+        board.placeShip(anotherShip, 2, 0)
+        board.placeShip(anotherShip, 3, 0)
+
+        expect(board.board[1][0]).toBe(ship)
+        expect(board.board[2][0]).toBe(1)
+        expect(board.board[3][0]).toBe(anotherShip)
+
+    })
+
 test('Receive attack function works correctly', () => {
     const board = new Gameboard
     const ship = new Ship(2);
