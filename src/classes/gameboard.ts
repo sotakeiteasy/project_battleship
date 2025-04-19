@@ -103,5 +103,47 @@ export default class Gameboard {
     getShipCoord() {
         return this.shipCoord.flat()
     }
+
+    markSunkenShips() {
+        const newlyMarkedCells: number[][] = [] 
+        for (let i = 0; i < this.ships.length; i++) {
+            const ship = this.ships[i];
+            if (ship.numberOfHits === ship.size) {
+                const coords = this.shipCoord[i]
+
+                for (const [x, y] of coords) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        for (let dy = -1; dy <= 1; dy++) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+
+                            if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10
+                            && typeof this.board[nx][ny] !== "object"
+                            && !this.hitMap[nx][ny]) {
+                                this.hitMap[nx][ny] = true;
+                                newlyMarkedCells.push([nx, ny])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return newlyMarkedCells;
+    }
+
+    isSunkAt(row: number, col: number): boolean {
+        // Находим корабль по координатам
+        const cell = this.board[row][col];
+        
+        // Проверяем, есть ли корабль в этой клетке
+        if (typeof cell === 'object') {
+            const ship = cell as Ship;
+            // Проверяем потоплен ли корабль (количество попаданий равно размеру)
+            return ship.numberOfHits === ship.size;
+        }
+        
+        return false;
+    }
+
 }
 

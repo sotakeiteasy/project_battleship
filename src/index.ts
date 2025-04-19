@@ -10,3 +10,9 @@ const playerTwoShips = playerTwo.createShips();
 
 
 Round(playerOne, playerTwo, playerOneShips, playerTwoShips)
+
+const newRoundBtn = document.querySelector(".newRoundBtn")
+newRoundBtn?.addEventListener('click', () => {
+    Round(playerOne, playerTwo, playerOneShips, playerTwoShips)
+    console.log("click")
+})
