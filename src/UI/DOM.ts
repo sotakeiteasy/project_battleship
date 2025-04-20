@@ -4,7 +4,7 @@ export function Round(playerOne: Player, playerTwo: Player, playerOneShips: any,
     let isFirstPlayer = true;
     const boardOne = document.querySelector(`#${'player-one-board'}`);
     const boardTwo = document.querySelector(`#${'player-two-board'}`);
-    
+    const newRoundBtn = document.querySelector(".newRoundBtn")
 
     if (boardOne) boardOne.textContent = "";
     if (boardTwo) boardTwo.textContent = "";
@@ -32,20 +32,30 @@ export function Round(playerOne: Player, playerTwo: Player, playerOneShips: any,
         board.appendChild(table);
     }
 
-    function placeShips() { 
-        const CarrierCoord = [1, 5];
-        playerOne.board.placeShip(playerOneShips.carrier, CarrierCoord[0], CarrierCoord[1], false)
-        playerOne.board.placeShip(playerOneShips.battleship, 7, 4)
-        playerOne.board.placeShip(playerOneShips.cruiser, 3, 0, false)
-        playerOne.board.placeShip(playerOneShips.submarine, 7, 0)
-        playerOne.board.placeShip(playerOneShips.destroyer, 9, 2)
+    function placeShips(player: Player, playerShips: { [key: string]: any }) {
+        const shipsArr = [] = Object.values(playerShips)
+        for (let i = 0; i < 5; i++) {
+            let isPlace: any = false
+
+            while (!isPlace) {
+                console.log(playerShips[1])
+                const randomCol = Math.floor(Math.random() * 10);
+                const randomRow = Math.floor(Math.random() * 10);
+                const vertical = Math.random() < 0.5
+                const Coord = [randomCol, randomRow];
+                isPlace = player.board.placeShip(shipsArr[i], Coord[0], Coord[1], vertical)
+            }
+        }
         
-        playerTwo.board.placeShip(playerTwoShips.carrier, 1, 3)
-        playerTwo.board.placeShip(playerTwoShips.battleship, 3, 3)
-        playerTwo.board.placeShip(playerTwoShips.cruiser, 5, 3)
-        playerTwo.board.placeShip(playerTwoShips.submarine, 7, 3)
-        playerTwo.board.placeShip(playerTwoShips.destroyer, 9, 3)
+        // playerTwo.board.placeShip(playerTwoShips.carrier, 1, 3)
+        // playerTwo.board.placeShip(playerTwoShips.battleship, 3, 3)
+        // playerTwo.board.placeShip(playerTwoShips.cruiser, 5, 3)
+        // playerTwo.board.placeShip(playerTwoShips.submarine, 7, 3)
+        // playerTwo.board.placeShip(playerTwoShips.destroyer, 9, 3)
     }
+    placeShips(playerOne, playerOneShips)
+    placeShips(playerTwo, playerTwoShips)
+
 
     function drawShips() {
         const PlayerOneCoords = playerOne.board.getShipCoord()
@@ -143,7 +153,6 @@ export function Round(playerOne: Player, playerTwo: Player, playerOneShips: any,
 
     createGameBoard('player-one-board');
     createGameBoard('player-two-board');
-    placeShips()
     drawShips()
     checkStep()
 
@@ -159,6 +168,8 @@ export function Round(playerOne: Player, playerTwo: Player, playerOneShips: any,
     // }
 
     function handleTwoClick(e: Event) {
+        if(newRoundBtn) newRoundBtn.textContent = "New Round"
+
         if (!isFirstPlayer) return; 
         const cell = e.target as HTMLElement
         if(cell.dataset.row === undefined || cell.dataset.col == undefined) return

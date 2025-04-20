@@ -69,8 +69,9 @@
     z-index: 1;
 }
 
-.cell.ship {
+#player-one-board .cell.ship {
     background-color: var(--primary-color);
+    /* background-color: rgba(0, 0, 0, 0.2); */
 }
 
 .cell.ship.hit::after {
