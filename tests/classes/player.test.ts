@@ -1,7 +1,6 @@
-import Player from "../../src/classes/player"
+import Player from "../../src/classes/player";
 
 test("Two types of player", () => {
-    expect(new Player('real').type).toBe("real")
-    expect(new Player('computer').type).toBe("computer")
-
-})
+  expect(new Player("real").type).toBe("real");
+  expect(new Player("computer").type).toBe("computer");
+});
