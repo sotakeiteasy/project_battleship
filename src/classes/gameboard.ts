@@ -1,5 +1,7 @@
 import Ship from "./ship";
-export default class Gameboard {
+import Player from "./player";
+
+export class Gameboard {
   board: (Ship | number)[][];
   hitMap: boolean[][];
   ships: Ship[];
@@ -16,12 +18,7 @@ export default class Gameboard {
     this.shipCoord = [];
   }
 
-  placeShip(
-    ship: Ship,
-    coordinateX: number,
-    coordinateY: number,
-    isVertical = true,
-  ) {
+  placeShip(ship: Ship, coordinateX: number, coordinateY: number, isVertical = true) {
     if (coordinateX < 0 || coordinateY < 0) {
       return false;
     }
@@ -50,7 +47,7 @@ export default class Gameboard {
       }
     }
 
-    let coords = [];
+    const coords = [];
     for (let i = 0; i < ship.size; i++) {
       const x = isVertical ? coordinateX : coordinateX + i;
       const y = isVertical ? coordinateY + i : coordinateY;
@@ -82,6 +79,20 @@ export default class Gameboard {
     return (this.board[coordinateX][coordinateY] = ship);
   }
 
+  placeShips(player: Player, playerShips: { [key: string]: Ship }) {
+    const shipsArr: Ship[] = Object.values(playerShips);
+    for (let i = 0; i < shipsArr.length; i++) {
+      let isPlace: Ship | boolean = false;
+      while (!isPlace) {
+        const randomCol = Math.floor(Math.random() * 10);
+        const randomRow = Math.floor(Math.random() * 10);
+        const vertical = Math.random() < 0.5;
+        const Coord = [randomCol, randomRow];
+        isPlace = player.board.placeShip(shipsArr[i], Coord[0], Coord[1], vertical);
+      }
+    }
+  }
+
   receiveAttack(coordinateX: number, coordinateY: number) {
     const boardCell = this.board[coordinateX][coordinateY];
 
@@ -100,10 +111,7 @@ export default class Gameboard {
   allShipsSunk() {
     for (let i = 0; i < this.board.length; i++) {
       for (let j = 0; j < this.board.length; j++) {
-        if (
-          typeof this.board[i][j] === "object" &&
-          this.hitMap[i][j] === false
-        ) {
+        if (typeof this.board[i][j] === "object" && this.hitMap[i][j] === false) {
           return false;
         }
       }
@@ -148,16 +156,24 @@ export default class Gameboard {
   }
 
   isSunkAt(row: number, col: number): boolean {
-    // Находим корабль по координатам
     const cell = this.board[row][col];
 
-    // Проверяем, есть ли корабль в этой клетке
     if (typeof cell === "object") {
       const ship = cell as Ship;
-      // Проверяем потоплен ли корабль (количество попаданий равно размеру)
       return ship.numberOfHits === ship.size;
     }
 
     return false;
+  }
+
+  cleanBoard() {
+    this.board = Array(10)
+      .fill(0)
+      .map(() => Array(10).fill(0));
+    this.hitMap = Array(10)
+      .fill(false)
+      .map(() => Array(10).fill(false));
+    this.ships = [];
+    this.shipCoord = [];
   }
 }

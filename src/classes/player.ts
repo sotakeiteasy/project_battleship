@@ -1,4 +1,4 @@
-import Gameboard from "./gameboard";
+import { Gameboard } from "./gameboard";
 import Ship from "./ship";
 
 export default class Player {
@@ -12,11 +12,16 @@ export default class Player {
 
   createShips() {
     return {
-      carrier: new Ship(5),
       battleship: new Ship(4),
-      cruiser: new Ship(3),
-      submarine: new Ship(2),
-      destroyer: new Ship(1),
+      cruiser_1: new Ship(3),
+      cruiser_2: new Ship(3),
+      submarine_1: new Ship(2),
+      submarine_2: new Ship(2),
+      submarine_3: new Ship(2),
+      destroyer_1: new Ship(1),
+      destroyer_2: new Ship(1),
+      destroyer_3: new Ship(1),
+      destroyer_4: new Ship(1),
     };
   }
 }
