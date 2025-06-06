@@ -2,9 +2,10 @@ import Player from "../classes/player";
 import { drawShips } from "../UI/utils/drawShips";
 import { Round } from "../UI/round";
 import { initializeNewGame } from "../UI/initialize/initializeNewGame";
+// import Ship from "../classes/ship";
 
-const playerOne = new Player("real");
-const playerTwo = new Player("computer");
+export const playerOne = new Player("real");
+export const playerTwo = new Player("computer");
 
 export function startGame() {
   playerOne.board.cleanBoard();
@@ -28,3 +29,12 @@ export function randomPlacement() {
   playerOne.board.placeShips(playerOne, playerOneShips);
   drawShips(playerOne, playerTwo);
 }
+
+// export function updateCoordinats(oldX: number, oldY: number, newX: number, newY: number) {
+//   const ship = playerOne.board.board[oldX][oldY];
+//   if (typeof ship === "object") {
+//     playerOne.board.placeShip(ship, newX, newY, true);
+//   }
+
+//   drawShips(playerOne, playerTwo);
+// }

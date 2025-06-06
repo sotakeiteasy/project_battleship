@@ -18,20 +18,26 @@ export class Gameboard {
     this.shipCoord = [];
   }
 
-  placeShip(ship: Ship, coordinateX: number, coordinateY: number, isVertical = true) {
+  placeShip(ship: Ship, coordinateX: number, coordinateY: number, isVertical: boolean) {
+    console.log(isVertical);
+    ship.isVertical = isVertical;
+
     if (coordinateX < 0 || coordinateY < 0) {
       return false;
     }
 
-    if (isVertical === true && coordinateY + ship.size > 9) {
+    if (isVertical && coordinateY + ship.size - 1 > 9) {
+      console.log("isVertical === true && coordinateY + ship.size > 9");
       return false;
-    } else if (isVertical === false && coordinateX + ship.size > 9) {
+    } else if (!isVertical && coordinateX + ship.size - 1 > 9) {
+      console.log("(isVertical === false && coordinateX + ship.size > 9");
+
       return false;
     }
 
     for (let i = 0; i < ship.size; i++) {
-      const x = isVertical ? coordinateX : coordinateX + i;
-      const y = isVertical ? coordinateY + i : coordinateY;
+      const x = isVertical ? coordinateX : coordinateX + i; // col
+      const y = isVertical ? coordinateY + i : coordinateY; // row
 
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
@@ -39,7 +45,8 @@ export class Gameboard {
           const ny = y + dy;
 
           if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
-            if (typeof this.board[nx][ny] === "object") {
+            if (typeof this.board[ny][nx] === "object") {
+              // [row][col]
               return false;
             }
           }
@@ -49,15 +56,15 @@ export class Gameboard {
 
     const coords = [];
     for (let i = 0; i < ship.size; i++) {
-      const x = isVertical ? coordinateX : coordinateX + i;
-      const y = isVertical ? coordinateY + i : coordinateY;
-      this.board[x][y] = ship;
-      coords.push([x, y]);
+      const x = isVertical ? coordinateX : coordinateX + i; // col
+      const y = isVertical ? coordinateY + i : coordinateY; // row
+      this.board[y][x] = ship; // [row][col]
+      coords.push([y, x]);
     }
 
     for (let i = 0; i < ship.size; i++) {
-      const x = isVertical ? coordinateX : coordinateX + i;
-      const y = isVertical ? coordinateY + i : coordinateY;
+      const x = isVertical ? coordinateX : coordinateX + i; // col
+      const y = isVertical ? coordinateY + i : coordinateY; // row
 
       for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
@@ -65,8 +72,9 @@ export class Gameboard {
           const ny = y + dy;
 
           if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
-            if (this.board[nx][ny] === 0) {
-              this.board[nx][ny] = 1;
+            if (this.board[ny][nx] === 0) {
+              // [row][col]
+              this.board[ny][nx] = 1;
             }
           }
         }
@@ -75,8 +83,8 @@ export class Gameboard {
 
     this.ships.push(ship);
     this.shipCoord.push(coords);
-
-    return (this.board[coordinateX][coordinateY] = ship);
+    console.log(this.board);
+    return true;
   }
 
   placeShips(player: Player, playerShips: { [key: string]: Ship }) {

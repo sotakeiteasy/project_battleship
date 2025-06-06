@@ -34,8 +34,8 @@ export function Round(playerOne: Player, playerTwo: Player) {
       }
 
       const hitShip = playerOne.board.receiveAttack(Row, Col);
-      const cell = boardOne?.querySelector(`[data-row="${Row}"][data-col="${Col}"]`);
-      cell?.classList.add("hit");
+      const cell = boardOne?.querySelector(`[data-row="${Row}"][data-col="${Col}"]`) as HTMLElement;
+      cell.classList.add("hit");
 
       if (hitShip) setTimeout(() => checkStep(), 800);
       else {
@@ -103,10 +103,12 @@ export function Round(playerOne: Player, playerTwo: Player) {
 
     const playerOneBoard = document.querySelector(".playerOne");
     const playerTwoBoard = document.querySelector(".playerTwo");
+    const display = document.querySelector(".display");
 
     boardTwo?.removeEventListener("click", handleClick);
     playerOneBoard?.classList.add("startShadow");
     playerTwoBoard?.classList.add("startShadow");
+    display?.classList.add("startShadow");
   }
 
   function handleClick(e: Event) {
