@@ -21,6 +21,9 @@ export function Round(playerOne: Player, playerTwo: Player) {
     drawShips(playerOne, playerTwo);
     boardTwo?.addEventListener("click", handleClick);
 
+    boardOne?.classList.add("nonClick");
+    // boardOne
+
     changeDisplay("Your turn");
   }
 
@@ -63,22 +66,22 @@ export function Round(playerOne: Player, playerTwo: Player) {
   function checkStep() {
     if (isFirstPlayer) {
       const markedCells = playerTwo.board.markSunkenShips();
-      markedCells.forEach(([x, y]: number[]) => {
-        const cell = boardTwo?.querySelector(`[data-row="${x}"][data-col="${y}"]`);
+      markedCells.forEach(([y, x]: number[]) => {
+        const cell = boardTwo?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
         cell?.classList.add("hit");
       });
-      playerTwo.board.ships.forEach((ship, i) => {
+      playerTwo.board.ships.forEach((ship, index) => {
         if (ship.numberOfHits === ship.size) {
-          playerTwo.board.shipCoord[i].forEach(([x, y]) => {
-            const cell = boardTwo?.querySelector(`[data-row="${x}"][data-col="${y}"]`);
+          playerTwo.board.shipCoord[index].forEach(([y, x]) => {
+            const cell = boardTwo?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
             cell?.classList.add("hitAll");
           });
         }
       });
     } else {
       const markedCells = playerOne.board.markSunkenShips();
-      markedCells.forEach(([x, y]: number[]) => {
-        const cell = boardOne?.querySelector(`[data-row="${x}"][data-col="${y}"]`);
+      markedCells.forEach(([y, x]: number[]) => {
+        const cell = boardOne?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
         cell?.classList.add("hit");
       });
     }

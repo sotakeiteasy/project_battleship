@@ -133,7 +133,7 @@ body {
   background-color: var(--primary-color);
 } */
 
-@keyframes shake {
+@keyframes shake-vertical {
   0%,
   100% {
     transform: translateX(0);
@@ -145,8 +145,40 @@ body {
     transform: translateX(4px);
   }
 }
-.shake-fail {
-  animation: shake 0.4s ease;
+
+@keyframes shake-non-vertical {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-4px);
+  }
+  75% {
+    transform: translateY(4px);
+  }
+}
+
+.shake-fail-vertical {
+  background-color: rgba(255, 0, 0, 0.5) !important;
+  animation: shake-vertical 0.4s ease;
+}
+.shake-fail-non-vertical {
+  background-color: rgba(255, 0, 0, 0.5) !important;
+
+  animation: shake-non-vertical 0.4s ease;
+}
+
+.nonClick {
+  pointer-events: none;
+}
+
+.cell.highlight {
+  background: var(--primary-color);
+}
+
+.cell.hidden {
+  opacity: 0;
 }
 
 .cell.ship.hit::after {

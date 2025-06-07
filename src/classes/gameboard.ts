@@ -19,7 +19,6 @@ export class Gameboard {
   }
 
   placeShip(ship: Ship, coordinateX: number, coordinateY: number, isVertical: boolean) {
-    console.log(isVertical);
     ship.isVertical = isVertical;
 
     if (coordinateX < 0 || coordinateY < 0) {
@@ -27,11 +26,8 @@ export class Gameboard {
     }
 
     if (isVertical && coordinateY + ship.size - 1 > 9) {
-      console.log("isVertical === true && coordinateY + ship.size > 9");
       return false;
     } else if (!isVertical && coordinateX + ship.size - 1 > 9) {
-      console.log("(isVertical === false && coordinateX + ship.size > 9");
-
       return false;
     }
 
@@ -83,7 +79,6 @@ export class Gameboard {
 
     this.ships.push(ship);
     this.shipCoord.push(coords);
-    console.log(this.board);
     return true;
   }
 
@@ -128,7 +123,7 @@ export class Gameboard {
   }
 
   getShipCoord() {
-    return this.shipCoord.flat();
+    return this.shipCoord;
   }
 
   markSunkenShips() {
@@ -138,7 +133,7 @@ export class Gameboard {
       if (ship.numberOfHits === ship.size) {
         const coords = this.shipCoord[i];
 
-        for (const [x, y] of coords) {
+        for (const [y, x] of coords) {
           for (let dx = -1; dx <= 1; dx++) {
             for (let dy = -1; dy <= 1; dy++) {
               const nx = x + dx;
@@ -149,11 +144,11 @@ export class Gameboard {
                 nx < 10 &&
                 ny >= 0 &&
                 ny < 10 &&
-                typeof this.board[nx][ny] !== "object" &&
-                !this.hitMap[nx][ny]
+                typeof this.board[ny][nx] !== "object" &&
+                !this.hitMap[ny][nx]
               ) {
-                this.hitMap[nx][ny] = true;
-                newlyMarkedCells.push([nx, ny]);
+                this.hitMap[ny][nx] = true;
+                newlyMarkedCells.push([ny, nx]);
               }
             }
           }

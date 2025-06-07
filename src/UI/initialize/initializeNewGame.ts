@@ -24,9 +24,65 @@ export function initializeNewGame() {
 
   initializeDrag();
 }
-// Fixes: reliable drag target, correct DOM updates, proper board mutation
+
 function initializeDrag() {
   const boardEl = document.querySelector(".playerOne") as HTMLElement;
+
+  boardEl.addEventListener("click", (e) => {
+    const target = (e.target as HTMLElement).closest(".cell.ship") as HTMLElement;
+    if (!target) return;
+
+    const y = parseInt(target.dataset.row!);
+    const x = parseInt(target.dataset.col!);
+    const ship = playerOne.board.board[y][x];
+
+    if (!(ship && typeof ship === "object" && "isVertical" in ship)) return;
+
+    ship.isVertical = !ship.isVertical;
+
+    const shipCoordsArr = playerOne.board
+      .getShipCoord()
+      .find((coords) => coords.some(([cy, cx]) => cy === y && cx === x));
+    if (!shipCoordsArr) return;
+
+    const [originY, originX] = shipCoordsArr[0];
+
+    // Удалить корабль с поля
+    playerOne.board.ships = playerOne.board.ships.filter((s) => s !== ship);
+    playerOne.board.shipCoord = playerOne.board.shipCoord.filter(
+      (coord) => coord.length === 0 || playerOne.board.board[coord[0][0]][coord[0][1]] !== ship,
+    );
+    for (const [cy, cx] of shipCoordsArr) {
+      if (playerOne.board.board[cy][cx] === ship) {
+        playerOne.board.board[cy][cx] = 0;
+      }
+    }
+
+    // Поставить с новой ориентацией
+    const success = playerOne.board.placeShip(ship, originX, originY, ship.isVertical);
+
+    // Если не получилось — вернуть обратно
+    if (!success) {
+      shipCoordsArr.forEach(([cy, cx]) => {
+        const cell = boardEl.querySelector(`[data-row="${cy}"][data-col="${cx}"]`);
+        if (cell) {
+          if (!ship.isVertical) {
+            cell.classList.add("shake-fail-vertical");
+            setTimeout(() => cell.classList.remove("shake-fail-vertical"), 500);
+          } else if (ship.isVertical) {
+            cell.classList.add("shake-fail-non-vertical");
+            setTimeout(() => cell.classList.remove("shake-fail-non-vertical"), 500);
+          }
+        }
+      });
+
+      ship.isVertical = !ship.isVertical;
+      playerOne.board.placeShip(ship, originX, originY, ship.isVertical);
+    }
+
+    // Перерисовать
+    drawShips(playerOne, null);
+  });
 
   const playerCells = boardEl.querySelectorAll(".cell.ship");
   playerCells.forEach((cell) => {
@@ -38,8 +94,11 @@ function initializeDrag() {
   let originY = 0;
   let isVertical: boolean;
   let draggedShip: Ship | null = null;
+  let dragIndex: number;
+  let shipCoordsArr: number[][] = [];
+  let dropSuccess = false;
 
-  const clearSurroundingArea = (coords: number[][]) => {
+  const clearSurroundingArea = (oldCoords: number[][][]) => {
     const directions = [
       [-1, -1],
       [-1, 0],
@@ -51,69 +110,107 @@ function initializeDrag() {
       [1, 1],
     ];
 
-    for (const [y, x] of coords) {
-      for (const [dy, dx] of directions) {
-        const ny = y + dy;
-        const nx = x + dx;
-        if (
-          ny >= 0 &&
-          ny < playerOne.board.board.length &&
-          nx >= 0 &&
-          nx < playerOne.board.board[0].length &&
-          typeof playerOne.board.board[ny][nx] !== "object"
-        ) {
-          playerOne.board.board[ny][nx] = 0;
+    for (const coords of oldCoords) {
+      for (const [y, x] of coords) {
+        for (const [dy, dx] of directions) {
+          const ny = y + dy;
+          const nx = x + dx;
+          if (
+            ny >= 0 &&
+            ny < playerOne.board.board.length &&
+            nx >= 0 &&
+            nx < playerOne.board.board[0].length &&
+            typeof playerOne.board.board[ny][nx] !== "object"
+          ) {
+            playerOne.board.board[ny][nx] = 0;
+          }
         }
       }
     }
   };
 
   boardEl.addEventListener("dragstart", (e) => {
+    dropSuccess = false;
+
     const target = e.target as HTMLElement;
     const cell = target.closest(".cell") as HTMLElement;
-    if (!cell || !cell.classList.contains("ship")) return;
+    if (!cell || !cell.classList.contains("ship")) {
+      e.preventDefault();
+      return;
+    }
+    console.log("maybeShip");
 
-    originY = parseInt(cell.dataset.row!);
-    originX = parseInt(cell.dataset.col!);
+    const y = parseInt(cell.dataset.row!);
+    const x = parseInt(cell.dataset.col!);
 
-    const maybeShip = playerOne.board.board[originY][originX];
+    const maybeShip = playerOne.board.board[y][x];
     if (!(maybeShip && typeof maybeShip === "object" && "size" in maybeShip)) return;
 
     draggedShip = maybeShip as Ship;
-    const size = draggedShip.size;
-    draggedShipCells = [cell];
-
     isVertical = draggedShip.isVertical;
 
-    if (isVertical) {
-      for (let i = 1; i < size; i++) {
-        const next = boardEl.querySelector(
-          `.cell.ship[data-row='${originY + i}'][data-col='${originX}']`,
-        ) as HTMLElement;
-        if (!next) break;
-        draggedShipCells.push(next);
-      }
-    } else {
-      for (let i = 1; i < size; i++) {
-        const next = boardEl.querySelector(
-          `.cell.ship[data-row='${originY}'][data-col='${originX + i}']`,
-        ) as HTMLElement;
-        if (!next) break;
-        draggedShipCells.push(next);
-      }
+    shipCoordsArr =
+      playerOne.board.getShipCoord().find((coords) => coords.some(([cy, cx]) => cy === y && cx === x)) || [];
+    if (shipCoordsArr.length === 0) return;
+
+    dragIndex = shipCoordsArr.findIndex(([cy, cx]) => cy === y && cx === x);
+
+    originY = shipCoordsArr[0][0];
+    originX = shipCoordsArr[0][1];
+
+    draggedShipCells = [];
+
+    for (let i = 0; i < draggedShip.size; i++) {
+      const cy = isVertical ? originY + i : originY;
+      const cx = isVertical ? originX : originX + i;
+      const cell = boardEl.querySelector(`.cell.ship[data-row='${cy}'][data-col='${cx}']`) as HTMLElement;
+      if (!cell) break;
+      draggedShipCells.push(cell);
     }
 
     draggedShipCells.forEach((c) => c.classList.add("selected"));
+    shipCoordsArr.forEach(([cy, cx]) =>
+      boardEl.querySelector(`[data-row="${cy}"][data-col="${cx}"]`)?.classList.remove("ship"),
+    );
   });
 
   boardEl.addEventListener("dragend", () => {
+    if (!dropSuccess && draggedShip && shipCoordsArr.length) {
+      handleFail(shipCoordsArr, draggedShip);
+    }
     draggedShipCells.forEach((c) => c.classList.remove("selected"));
     draggedShipCells = [];
     draggedShip = null;
+    shipCoordsArr = [];
+
+    document.querySelectorAll(".cell.highlight").forEach((cell) => cell.classList.remove("highlight"));
   });
 
   boardEl.addEventListener("dragover", (e) => {
     e.preventDefault();
+
+    const target = e.target as HTMLElement;
+    if (!target) return;
+    const cell = target.closest(".cell") as HTMLElement;
+    if (!cell) return;
+
+    if (!draggedShip) return;
+    const y = parseInt(cell.dataset.row!);
+    const x = parseInt(cell.dataset.col!);
+
+    const startY = isVertical ? y - dragIndex : y;
+    const startX = isVertical ? x : x - dragIndex;
+
+    for (let i = 0; i < draggedShip.size; i++) {
+      const cy = isVertical ? startY + i : startY;
+      const cx = isVertical ? startX : startX + i;
+      const cell = boardEl.querySelector(`[data-row="${cy}"][data-col="${cx}"]`);
+      cell?.classList.add("highlight");
+    }
+  });
+
+  boardEl.addEventListener("dragleave", () => {
+    document.querySelectorAll(".cell.highlight").forEach((cell) => cell.classList.remove("highlight"));
   });
 
   boardEl.addEventListener("drop", (e) => {
@@ -121,6 +218,8 @@ function initializeDrag() {
 
     const dropCell = (e.target as HTMLElement).closest(".cell") as HTMLElement;
     if (!dropCell || !draggedShip || draggedShipCells.length === 0) {
+      handleFail(shipCoordsArr, draggedShip!);
+
       boardEl.dispatchEvent(new DragEvent("dragend"));
       return;
     }
@@ -129,39 +228,70 @@ function initializeDrag() {
     const dropX = parseInt(dropCell.dataset.col!);
     if (dropX === originX && dropY === originY) return;
 
+    const startY = isVertical ? dropY - dragIndex : dropY;
+    const startX = isVertical ? dropX : dropX - dragIndex;
+
     draggedShipCells.forEach((cell) => cell.classList.remove("ship"));
 
-    const oldCoords = playerOne.board.getShipCoord();
-    console.log({ oldCoords });
+    const allCoords = playerOne.board.getShipCoord();
+
     playerOne.board.ships = playerOne.board.ships.filter((s) => s !== draggedShip);
     playerOne.board.shipCoord = playerOne.board.shipCoord.filter(
       (coord) => coord.length === 0 || playerOne.board.board[coord[0][0]][coord[0][1]] !== draggedShip,
     );
 
-    for (const [x, y] of oldCoords) {
-      if (playerOne.board.board[x][y] === draggedShip) {
-        playerOne.board.board[x][y] = 0;
+    // for (const shipCoords of oldCoords) {
+    for (const [y, x] of shipCoordsArr) {
+      if (playerOne.board.board[y][x] === draggedShip) {
+        playerOne.board.board[y][x] = 0;
       }
     }
-
-    const success = playerOne.board.placeShip(draggedShip, dropX, dropY, isVertical);
+    // }
+    const success = playerOne.board.placeShip(draggedShip, startX, startY, isVertical);
 
     if (success) {
-      clearSurroundingArea(oldCoords);
-      drawShips(playerOne, null);
+      handleSuccess(allCoords, draggedShip, startX, startY);
     } else {
-      playerOne.board.placeShip(draggedShip, originX, originY, isVertical);
-      drawShips(playerOne, null);
-
-      draggedShipCells.forEach((cell) => {
-        cell.classList.add("ship");
-        cell.classList.add("shake-fail");
-        setTimeout(() => cell.classList.remove("shake-fail"), 500);
-      });
+      handleFail(shipCoordsArr, draggedShip);
     }
 
     draggedShipCells.forEach((c) => c.classList.remove("selected"));
     draggedShipCells = [];
     draggedShip = null;
   });
+
+  function handleSuccess(oldCoords: number[][][], draggedShip: Ship, startX: number, startY: number) {
+    clearSurroundingArea(oldCoords);
+    drawShips(playerOne, null);
+
+    for (let i = 0; i < draggedShip.size; i++) {
+      const cy = isVertical ? startY + i : startY;
+      const cx = isVertical ? startX : startX + i;
+      boardEl.querySelector(`[data-row="${cy}"][data-col="${cx}"]`)?.classList.add("ship");
+    }
+    dropSuccess = true;
+  }
+
+  function handleFail(oldCoords: number[][], draggedShip: Ship) {
+    oldCoords.forEach(([cy, cx]) => {
+      boardEl.querySelector(`[data-row="${cy}"][data-col="${cx}"]`)?.classList.add("ship");
+    });
+
+    playerOne.board.placeShip(draggedShip, originX, originY, isVertical);
+    drawShips(playerOne, null);
+
+    if (isVertical) {
+      draggedShipCells.forEach((cell) => {
+        cell.classList.add("ship");
+        cell.classList.add("shake-fail-vertical");
+        setTimeout(() => cell.classList.remove("shake-fail-vertical"), 500);
+      });
+    } else {
+      draggedShipCells.forEach((cell) => {
+        cell.classList.add("ship");
+        cell.classList.add("shake-fail-non-vertical");
+        setTimeout(() => cell.classList.remove("shake-fail-non-vertical"), 500);
+      });
+    }
+  }
 }

@@ -5,7 +5,7 @@
   "_version": "20.1.0",
 
   "compilerOptions": {
-    "lib": ["dom", "es2023"],
+    "lib": ["es5", "es6", "dom", "dom.iterable"],
     "module": "node16",
     "target": "es2022",
 

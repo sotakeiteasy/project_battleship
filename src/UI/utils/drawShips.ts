@@ -8,17 +8,21 @@ export function drawShips(playerOne: Player | null, playerTwo: Player | null) {
 
   if (playerOne) {
     const PlayerOneCoords = playerOne.board.getShipCoord();
-    PlayerOneCoords.forEach(([y, x]: number[]) => {
-      const cell = boardOne?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
-      cell?.classList.add("ship");
+    PlayerOneCoords.forEach((shipCoords: number[][]) => {
+      shipCoords.forEach(([y, x]) => {
+        const cell = boardOne?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
+        cell?.classList.add("ship");
+      });
     });
   }
 
   if (playerTwo) {
     const PlayerTwoCoords = playerTwo.board.getShipCoord();
-    PlayerTwoCoords.forEach(([y, x]: number[]) => {
-      const cell = boardTwo?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
-      cell?.classList.add("ship");
+    PlayerTwoCoords.forEach((shipCoords: number[][]) => {
+      shipCoords.forEach(([y, x]) => {
+        const cell = boardTwo?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
+        cell?.classList.add("ship");
+      });
     });
   }
 }
