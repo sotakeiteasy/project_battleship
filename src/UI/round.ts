@@ -30,23 +30,21 @@ export function Round(playerOne: Player, playerTwo: Player) {
   function computerAttack(Row: number = 0, Col: number = 0) {
     changeDisplay("Computer is attacking...");
 
-    setTimeout(() => {
-      while (playerOne.board.hitMap[Row][Col] !== false) {
-        Row = Math.floor(Math.random() * 10);
-        Col = Math.floor(Math.random() * 10);
-      }
+    while (playerOne.board.hitMap[Row][Col] !== false) {
+      Row = Math.floor(Math.random() * 10);
+      Col = Math.floor(Math.random() * 10);
+    }
 
-      const hitShip = playerOne.board.receiveAttack(Row, Col);
-      const cell = boardOne?.querySelector(`[data-row="${Row}"][data-col="${Col}"]`) as HTMLElement;
-      cell.classList.add("hit");
+    const hitShip = playerOne.board.receiveAttack(Row, Col);
+    const cell = boardOne?.querySelector(`[data-row="${Row}"][data-col="${Col}"]`) as HTMLElement;
+    cell.classList.add("hit");
 
-      if (hitShip) setTimeout(() => checkStep(), 800);
-      else {
-        isFirstPlayer = !isFirstPlayer;
-        checkStep();
-        changeDisplay("Your turn");
-      }
-    }, 200);
+    if (hitShip) checkStep(Row, Col, true);
+    else {
+      isFirstPlayer = !isFirstPlayer;
+      checkStep();
+      changeDisplay("Your turn");
+    }
   }
 
   function changeDisplay(text: string) {
@@ -63,7 +61,7 @@ export function Round(playerOne: Player, playerTwo: Player) {
     display.textContent = text;
   }
 
-  function checkStep() {
+  function checkStep(row?: number, col?: number, hit = false) {
     if (isFirstPlayer) {
       const markedCells = playerTwo.board.markSunkenShips();
       markedCells.forEach(([y, x]: number[]) => {
@@ -78,12 +76,27 @@ export function Round(playerOne: Player, playerTwo: Player) {
           });
         }
       });
+      if (row != null && col != null) {
+        const markedDiagCells = playerTwo.board.markHitsAroundShip(row, col);
+        markedDiagCells.forEach(([row, col]) => {
+          const elem = boardTwo?.querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`);
+          elem?.classList.add("hit");
+        });
+      }
     } else {
       const markedCells = playerOne.board.markSunkenShips();
       markedCells.forEach(([y, x]: number[]) => {
         const cell = boardOne?.querySelector(`[data-row="${y}"][data-col="${x}"]`);
         cell?.classList.add("hit");
       });
+
+      if (row != null && col != null) {
+        const markedDiagCells = playerOne.board.markHitsAroundShip(row, col);
+        markedDiagCells.forEach(([row, col]) => {
+          const elem = boardOne?.querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`);
+          elem?.classList.add("hit");
+        });
+      }
     }
 
     if (playerOne.board.allShipsSunk() || playerTwo.board.allShipsSunk()) {
@@ -96,7 +109,7 @@ export function Round(playerOne: Player, playerTwo: Player) {
       boardTwo?.classList.remove("shadow");
     } else if (!isFirstPlayer) {
       boardTwo?.classList.add("shadow");
-      computerAttack();
+      setTimeout(() => computerAttack(), hit ? 800 : 200);
     }
   }
 
@@ -118,18 +131,25 @@ export function Round(playerOne: Player, playerTwo: Player) {
     if (!isFirstPlayer) return;
     const cell = e.target as HTMLElement;
     if (cell.dataset.row === undefined || cell.dataset.col == undefined) return;
-    if (cell?.classList.contains("hit")) {
-      return;
-    }
+    if (cell?.classList.contains("hit")) return;
+
     const col = Number(cell.dataset.col);
     const row = Number(cell.dataset.row);
+
     cell.classList.add("hit");
     const hitShip = playerTwo.board.receiveAttack(row, col);
+
     if (!hitShip) {
       isFirstPlayer = !isFirstPlayer;
       checkStep();
     } else {
-      checkStep();
+      const markedCells = playerTwo.board.markHitsAroundShip(row, col);
+
+      markedCells.forEach(([row, col]) => {
+        const elem = boardTwo?.querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`);
+        elem?.classList.add("hit");
+      });
+      checkStep(row, col);
     }
   }
 }

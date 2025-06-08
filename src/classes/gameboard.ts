@@ -126,6 +126,29 @@ export class Gameboard {
     return this.shipCoord;
   }
 
+  markHitsAroundShip(row: number, col: number) {
+    const newlyMarkedCells: number[][] = [];
+
+    const deltas: [number, number][] = [
+      [1, 1],
+      [1, -1],
+      [-1, -1],
+      [-1, 1],
+    ];
+
+    for (const [dr, dc] of deltas) {
+      const r = row + dr;
+      const c = col + dc;
+
+      if (r >= 0 && r < this.board.length && c >= 0 && c < this.board[0].length) {
+        this.hitMap[r][c] = true;
+        newlyMarkedCells.push([r, c]);
+      }
+    }
+
+    return newlyMarkedCells;
+  }
+
   markSunkenShips() {
     const newlyMarkedCells: number[][] = [];
     for (let i = 0; i < this.ships.length; i++) {
