@@ -20,22 +20,66 @@ export function Round(playerOne: Player, playerTwo: Player) {
 
     drawShips(playerOne, playerTwo);
     boardTwo?.addEventListener("click", handleClick);
-
     boardOne?.classList.add("nonClick");
-    // boardOne
 
     changeDisplay("Your turn");
   }
 
   function computerAttack(Row: number = 0, Col: number = 0) {
     changeDisplay("Computer is attacking...");
+    // Ищем клетки кораблей, которые уже поражены
+    const hitShipCells = boardOne?.querySelectorAll(".ship.hit");
+    let targetFound = false;
 
-    while (playerOne.board.hitMap[Row][Col] !== false) {
-      Row = Math.floor(Math.random() * 10);
-      Col = Math.floor(Math.random() * 10);
+    if (hitShipCells && hitShipCells.length > 0) {
+      // Проходим по каждой пораженной клетке корабля
+      for (const hitCell of hitShipCells) {
+        const hitRow = parseInt(hitCell.getAttribute("data-row")!);
+        const hitCol = parseInt(hitCell.getAttribute("data-col")!);
+
+        const directions = [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+        ];
+
+        for (const [dRow, dCol] of directions) {
+          const newRow = hitRow + dRow;
+          const newCol = hitCol + dCol;
+
+          if (
+            newRow >= 0 &&
+            newRow < 10 &&
+            newCol >= 0 &&
+            newCol < 10 &&
+            playerOne.board.hitMap[newRow][newCol] === false && // WHY IT ISN"T WORK?????
+            !boardOne?.querySelector(`[data-row="${newRow}"][data-col="${newCol}"]`)?.classList.contains("hit")
+          ) {
+            Row = newRow;
+            Col = newCol;
+            targetFound = true;
+
+            console.log(playerOne.board.hitMap[newRow][newCol] === false);
+            console.log({ newRow, newCol });
+
+            break;
+          }
+        }
+
+        if (targetFound) break;
+      }
+    }
+
+    if (!targetFound) {
+      while (playerOne.board.hitMap[Row][Col] !== false) {
+        Row = Math.floor(Math.random() * 10);
+        Col = Math.floor(Math.random() * 10);
+      }
     }
 
     const hitShip = playerOne.board.receiveAttack(Row, Col);
+    console.log(hitShip);
     const cell = boardOne?.querySelector(`[data-row="${Row}"][data-col="${Col}"]`) as HTMLElement;
     cell.classList.add("hit");
 

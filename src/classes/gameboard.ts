@@ -98,7 +98,6 @@ export class Gameboard {
 
   receiveAttack(coordinateX: number, coordinateY: number) {
     const boardCell = this.board[coordinateX][coordinateY];
-
     if (this.hitMap[coordinateX][coordinateY] === true) {
       return false;
     } else if (boardCell === 0) {
