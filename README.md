@@ -1,10 +1,9 @@
 Basic version of battleship.
 
 - Random placement of player ships
-- Basic AI for opponent (random shooting)
-
-Plan to add
-
-- Styles
 - Dragging ships at start of the game
-- Smarter AI
+- opponent AI with simple logic
+
+Plan to add probability map for opponent
+
+[LIVE VERSION](https://sotakeiteasy.github.io/project_battleship/)
